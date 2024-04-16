@@ -13,12 +13,11 @@ interface Event {
 
 const App: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
+  const [editEvent, setEditEvent] = useState<Event | null>(null);
 
   useEffect(() => {
     const storedEvents = JSON.parse(localStorage.getItem('events') || '[]') as Event[];
-    if (storedEvents) {
-      setEvents(storedEvents);
-    }
+    setEvents(storedEvents);
   }, []);
 
   useEffect(() => {
@@ -33,13 +32,23 @@ const App: React.FC = () => {
     setEvents(events.filter(event => event.id !== id));
   };
 
+  const editEventHandler = (event: Event) => {
+    setEditEvent(event);
+  };
+
+  const editEventSubmitHandler = (editedEvent: Event) => {
+    const updatedEvents = events.map(event => (event.id === editedEvent.id ? editedEvent : event));
+    setEvents(updatedEvents);
+    setEditEvent(null);
+  };
+
   return (
     <div className="App">
       <h1>Plánovač událostí</h1>
-      <EventForm addEvent={addEvent} />
-      <EventList events={events} deleteEvent={deleteEvent} />
+      <EventForm addEvent={addEvent} editEvent={editEvent} editEventSubmit={editEventSubmitHandler} />
+      <EventList events={events} deleteEvent={deleteEvent} editEvent={editEventHandler} />
     </div>
   );
-}
+};
 
 export default App;
